@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
         maxWidth: 128,  // w-32 (32 * 4 = 128px)
         step: 16,
         correctBonus: 10,
-        wrongPenalty: 5
+        wrongPenalty: 5,
+        bottomOffset: 20 // Отступ снизу в пикселях
     };
 
     // Инициализация уровня
@@ -53,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             block.style.width = `${width}px`;
             block.style.left = '50%';
             block.style.transform = 'translateX(-50%)';
-            block.style.bottom = `${index * 30}px`;
+            block.style.bottom = `${index * 30 + config.bottomOffset}px`; // Добавляем отступ снизу
             block.dataset.width = width;
             
             gameArea.appendChild(block);
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Обновляем позиции
         blocks.forEach((block, index) => {
-            block.element.style.bottom = `${index * 30}px`;
+            block.element.style.bottom = `${index * 30 + config.bottomOffset}px`; // Учитываем отступ
         });
 
         selectedBlockIndex = targetIndex;
