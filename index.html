@@ -1,14 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Главная</title>
     <link rel="stylesheet" href="Assets/CSS/main.css">
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
+    <!-- Шапка -->
+    <header id="header" class="w-full bg-white shadow p-4 hidden">
+        <div class="container mx-auto flex items-center justify-between">
+            <p class="text-xl text-gray-800">Игрок: 
+                <span id="header-username" class="text-lime-600"></span>
+            </p>
+            <button id="logout-btn"
+                    class="bg-red-500 text-white py-1.5 px-4 rounded-lg hover:opacity-80 transition-all">
+                Выйти
+            </button>
+        </div>
+    </header>
     
-
+    <!-- Основной контент -->
+    <main class="grow container mx-auto px-4 py-8 flex items-center justify-center">
+        <!-- Форма входа -->
+        <div id="authForm" class="w-full max-w-md bg-white p-8 rounded-lg shadow-[0px_0px_13px_-7px_black]">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Добро пожаловать!</h1>
+            <input type="text" id="username" placeholder="Введите ваше имя"
+                   class="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-500">
+            <button onclick="startGame()"
+                    class="w-full bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700 transition-all">
+                Начать игру
+            </button>
+            <!-- Фидбек для формы входа -->
+            <div id="authFeedback" class="text-center mt-4 text-red-600"></div>
+        </div>
+        
+        <!-- Выбор уровней -->
+        <div id="levelSelect" class="hidden w-full max-w-md bg-white p-8 rounded-lg shadow-[0px_0px_13px_-7px_black]">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Выберите уровень</h2>
+            <div class="space-y-3">
+                <a href="Pages/gameLevel1.html" class="block bg-lime-200 p-4 rounded-lg hover:bg-lime-400 hover:text-white transition-all">Уровень 1</a>
+                <a href="Pages/gameLevel2.html" class="block bg-lime-200 p-4 rounded-lg hover:bg-lime-400 hover:text-white transition-all">Уровень 2</a>
+                <a href="Pages/gameLevel3.html" class="block bg-lime-200 p-4 rounded-lg hover:bg-lime-400 hover:text-white transition-all">Уровень 3</a>
+            </div>
+        </div>
+    </main>
     
+    <script src="Assets/JS/auth.js"></script>
 </body>
 </html>
