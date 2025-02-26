@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Уровень 2 - Изменение размеров</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Шапка -->
+    <header class="w-full bg-white shadow p-4">
+        <div class="container mx-auto flex items-center justify-between">
+            <p class="text-xl text-gray-800">Игрок: 
+                <span id="username" class="text-lime-600"></span>
+            </p>
+            <button id="logout-btn"
+                    class="bg-red-500 text-white py-1.5 px-4 rounded-lg hover:opacity-80 transition-all">
+                Выйти
+            </button>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="grow container mx-auto px-4 py-8 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-[0px_0px_13px_-7px_black] w-full">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Уровень 2</h1>
+                <p class="text-gray-600 mt-2">Правый клик изменяет размер</p>
+                <div id="timer" class="text-xl font-bold text-red-600"></div>
+            </div>
+
+            <div id="gameArea" class="w-full h-96 bg-gray-50 rounded-lg shadow-inner p-4 relative"></div>
+
+            <div id="feedback" class="text-lg font-semibold text-center mt-4 min-h-[2rem]"></div>
+        </div>
+    </main>
+
+    <!-- Подвал -->
+    <footer class="w-full bg-white border-t border-gray-200 p-4">
+        <div class="container mx-auto flex items-center justify-between">
+            <p class="text-xl text-gray-800">Баллы: 
+                <span id="current-score" class="text-lime-600">0</span>
+            </p>
+            <div class="flex items-center gap-2">
+                <a href="../index.html" 
+                   class="bg-red-500 text-white py-1.5 px-4 rounded-lg hover:opacity-80 transition-all"
+                   onclick="localStorage.removeItem('playerName')">
+                    Закончить игру
+                </a>
+                <button id="action-btn"
+                        class="bg-lime-600 text-white py-1.5 px-4 rounded-lg hover:opacity-80 transition-all">
+                    Проверить ответ
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../Assets/JS/gameLevel2.js"></script>
+</body>
+</html>
