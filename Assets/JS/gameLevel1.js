@@ -171,9 +171,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    window.resetProgress = () => {
-        localStorage.removeItem('levelProgress');
-    }
-
     initLevel();
 });
