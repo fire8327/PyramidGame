@@ -8,8 +8,8 @@
 </head>
 <body class="min-h-screen flex flex-col bg-gray-100">
     
-     <!-- Шапка -->
-     <header class="w-full bg-white shadow p-4">
+    <!-- Шапка -->
+    <header class="w-full bg-white shadow p-4">
         <div class="container mx-auto flex items-center justify-between">
             <p class="text-xl text-gray-800">Игрок: 
                 <span id="username" class="text-lime-600"></span>
@@ -24,19 +24,21 @@
     <!-- Основной контент -->
     <main class="grow container mx-auto px-4 py-8 flex items-center justify-center">
         <div class="bg-white p-6 rounded-lg shadow-[0px_0px_13px_-7px_black] w-full">
-            <!-- Заголовок уровня -->
             <div class="text-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Уровень 1</h1>
-                <p class="text-gray-600 mt-2">Соберите пирамиду</p>
-                <!-- Таймер -->
+                <h1 class="text-2xl font-bold text-gray-800">Уровень 3</h1>
+                <p class="text-gray-600 mt-2">Перенесите ступеньки в правую область для построения пирамиды</p>
                 <div id="timer" class="text-xl font-bold text-red-600"></div>
             </div>
 
+            <!-- Контейнеры -->
+            <div class="flex gap-4 h-96">
+                <!-- Левая область -->
+                <div id="sourceArea" class="w-1/2 bg-gray-50 rounded-lg shadow-inner p-4 relative overflow-hidden"></div>
+                
+                <!-- Правая область -->
+                <div id="targetArea" class="w-1/2 bg-gray-50 rounded-lg shadow-inner p-4 relative flex flex-col-reverse items-center gap-2 overflow-y-auto"></div>
+            </div>
 
-            <!-- Игровая область -->
-            <div id="gameArea" class="w-full h-96 bg-gray-50 rounded-lg shadow-inner p-4 relative"></div>
-
-            <!-- Фидбек -->
             <div id="feedback" class="text-lg font-semibold text-center mt-4 min-h-[2rem]"></div>
         </div>
     </main>
