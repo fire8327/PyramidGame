@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         minWidth: 16,
         maxWidth: 128,
         step: 16,
-        correctBonus: 10,
-        wrongPenalty: 5,
+        correctBonus: 30,
+        wrongPenalty: 25,
         spawnInterval: 2000,
         fallDuration: 5000
     };
@@ -103,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isCorrect) {
             score += config.correctBonus;
             showFeedback('Правильно! Уровень пройден!', true);
-            savePlayerScore();
             finishLevel();
         } else {
             score = Math.max(0, score - config.wrongPenalty);
@@ -138,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function finishLevel() {
         clearInterval(timerId);
+        savePlayerScore();
         document.getElementById('action-btn').textContent = 'Топ игроков';
         document.getElementById('action-btn').removeEventListener('click', checkPyramid);
         document.getElementById('action-btn').addEventListener('click', () => {
@@ -147,14 +147,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function savePlayerScore() {
         const playerName = localStorage.getItem('playerName');
+        if (!playerName) return;
+    
+        const levelScores = JSON.parse(localStorage.getItem(`levelScores_${playerName}`)) || {};
+        const currentLevelScore = levelScores['level3'] || 0;
+        levelScores['level3'] = Math.max(currentLevelScore, score);
+        localStorage.setItem(`levelScores_${playerName}`, JSON.stringify(levelScores));
+    
+        const totalScore = calculateTotalScore(playerName);
+    
         const rating = JSON.parse(localStorage.getItem('rating')) || [];
         const playerIndex = rating.findIndex(player => player.username === playerName);
         if (playerIndex !== -1) {
-            if (rating[playerIndex].score < score) rating[playerIndex].score = score;
+            rating[playerIndex].score = totalScore;
         } else {
-            rating.push({ username: playerName, score: score });
+            rating.push({ username: playerName, score: totalScore });
         }
         localStorage.setItem('rating', JSON.stringify(rating));
+    }
+    
+    function calculateTotalScore(playerName) {
+        const levelScores = JSON.parse(localStorage.getItem(`levelScores_${playerName}`)) || {};
+        return (
+            (levelScores['level1'] || 0) +
+            (levelScores['level2'] || 0) +
+            (levelScores['level3'] || 0)
+        );
     }
 
     initLevel();

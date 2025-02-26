@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isSorted) {
             score += config.correctBonus;
             showFeedback('Правильно! Уровень пройден!', true);
-            savePlayerScore();
             finishLevel();
         } else {
             score = Math.max(0, score - config.wrongPenalty);
@@ -129,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function finishLevel() {
         clearInterval(timerId);
+        savePlayerScore();
         document.getElementById('action-btn').textContent = 'Следующий уровень';
         document.getElementById('action-btn').removeEventListener('click', checkStage);
         document.getElementById('action-btn').addEventListener('click', () => {
@@ -138,14 +138,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function savePlayerScore() {
         const playerName = localStorage.getItem('playerName');
+        if (!playerName) return;
+    
+        const levelScores = JSON.parse(localStorage.getItem(`levelScores_${playerName}`)) || {};
+        const currentLevelScore = levelScores['level1'] || 0;
+        levelScores['level1'] = Math.max(currentLevelScore, score);
+        localStorage.setItem(`levelScores_${playerName}`, JSON.stringify(levelScores));
+    
+        const totalScore = calculateTotalScore(playerName);
+    
         const rating = JSON.parse(localStorage.getItem('rating')) || [];
         const playerIndex = rating.findIndex(player => player.username === playerName);
         if (playerIndex !== -1) {
-            if (rating[playerIndex].score < score) rating[playerIndex].score = score;
+            rating[playerIndex].score = totalScore;
         } else {
-            rating.push({ username: playerName, score: score });
+            rating.push({ username: playerName, score: totalScore });
         }
         localStorage.setItem('rating', JSON.stringify(rating));
+    }
+    
+    function calculateTotalScore(playerName) {
+        const levelScores = JSON.parse(localStorage.getItem(`levelScores_${playerName}`)) || {};
+        return (
+            (levelScores['level1'] || 0) +
+            (levelScores['level2'] || 0) +
+            (levelScores['level3'] || 0)
+        );
     }
 
     document.getElementById('gameArea').addEventListener('click', (e) => {

@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
         minWidth: 16,
         maxWidth: 128,
         step: 16,
-        correctBonus: 10,
-        wrongPenalty: 5,
+        correctBonus: 20,
+        wrongPenalty: 15,
         bottomOffset: 20
     };
 
@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isValid) {
             score += config.correctBonus;
             showFeedback('Правильно! Уровень пройден', true);
-            savePlayerScore();
             finishGame();
         } else {
             score = Math.max(0, score - config.wrongPenalty);
@@ -93,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function finishGame() {
         clearInterval(timerId);
+        savePlayerScore();
         const btn = document.getElementById('action-btn');
         btn.textContent = 'Следующий уровень';
         btn.removeEventListener('click', checkSolution);
@@ -111,14 +111,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function savePlayerScore() {
         const playerName = localStorage.getItem('playerName');
+        if (!playerName) return;
+    
+        const levelScores = JSON.parse(localStorage.getItem(`levelScores_${playerName}`)) || {};
+        const currentLevelScore = levelScores['level2'] || 0;
+        levelScores['level2'] = Math.max(currentLevelScore, score);
+        localStorage.setItem(`levelScores_${playerName}`, JSON.stringify(levelScores));
+    
+        const totalScore = calculateTotalScore(playerName);
+    
         const rating = JSON.parse(localStorage.getItem('rating')) || [];
         const playerIndex = rating.findIndex(player => player.username === playerName);
         if (playerIndex !== -1) {
-            if (rating[playerIndex].score < score) rating[playerIndex].score = score;
+            rating[playerIndex].score = totalScore;
         } else {
-            rating.push({ username: playerName, score: score });
+            rating.push({ username: playerName, score: totalScore });
         }
         localStorage.setItem('rating', JSON.stringify(rating));
+    }
+    
+    function calculateTotalScore(playerName) {
+        const levelScores = JSON.parse(localStorage.getItem(`levelScores_${playerName}`)) || {};
+        return (
+            (levelScores['level1'] || 0) +
+            (levelScores['level2'] || 0) +
+            (levelScores['level3'] || 0)
+        );
     }
 
     init();
