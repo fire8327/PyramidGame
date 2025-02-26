@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blocks = [];
     const config = {
         blockCount: 7,
-        minWidth: 10,
+        minWidth: 30,
         maxWidth: 150,
         step: 20,
         correctBonus: 20,
