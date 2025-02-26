@@ -1,8 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
-    let timeLeft = 90;
+    let timeLeft = 60;
     let timerId;
     let pyramid = [];
+    let spawnedBlocks = new Set(); // Множество для отслеживания уже заспавненных номеров
 
     const config = {
         blockCount: 7,
@@ -29,7 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function generateBlock() {
-        const number = Math.floor(Math.random() * config.blockCount) + 1;
+        // Получаем номера, которые еще не в пирамиде
+        const availableNumbers = Array.from({ length: config.blockCount }, (_, i) => i + 1)
+            .filter(num => !pyramid.some(block => block.number === num));
+        if (availableNumbers.length === 0) return; // Если все номера в пирамиде, не спавним
+
+        const number = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
         const width = config.maxWidth - (config.step * (7 - number));
         const block = document.createElement('div');
         block.className = 'h-6 bg-lime-500 cursor-pointer rounded-full border-2 border-lime-700 flex items-center justify-center text-white';
@@ -84,12 +90,56 @@ document.addEventListener('DOMContentLoaded', () => {
         targetArea.innerHTML = '';
         pyramid.forEach((block, index) => {
             const pyramidBlock = document.createElement('div');
-            pyramidBlock.className = 'h-6 bg-lime-500 rounded-full border-2 border-lime-700 flex items-center justify-center text-white';
+            pyramidBlock.className = 'h-6 bg-lime-500 cursor-pointer rounded-full border-2 border-lime-700 flex items-center justify-center text-white';
             pyramidBlock.textContent = block.number;
+            pyramidBlock.dataset.number = block.number;
             pyramidBlock.dataset.width = block.width;
             pyramidBlock.style.width = `${block.width}px`;
+            pyramidBlock.addEventListener('dblclick', () => returnToSource(pyramidBlock));
             targetArea.appendChild(pyramidBlock);
         });
+    }
+
+    function returnToSource(block) {
+        const number = parseInt(block.dataset.number);
+        const width = parseInt(block.dataset.width);
+        pyramid = pyramid.filter(b => b.number !== number); // Удаляем из пирамиды
+
+        const sourceArea = document.getElementById('sourceArea');
+        const newBlock = document.createElement('div');
+        newBlock.className = 'h-6 bg-lime-500 cursor-pointer rounded-full border-2 border-lime-700 flex items-center justify-center text-white';
+        newBlock.style.width = `${width}px`;
+        newBlock.style.position = 'absolute';
+        newBlock.textContent = number;
+        newBlock.dataset.number = number;
+        newBlock.dataset.width = width;
+
+        const containerWidth = sourceArea.clientWidth;
+        const containerHeight = sourceArea.clientHeight;
+        const leftPosition = Math.random() * (containerWidth - width);
+        newBlock.style.left = `${leftPosition}px`;
+        newBlock.style.top = '0';
+
+        const animation = newBlock.animate([
+            { transform: 'translateY(0)' },
+            { transform: `translateY(${containerHeight - 24}px)` }
+        ], {
+            duration: config.fallDuration,
+            easing: 'linear',
+            fill: 'forwards'
+        });
+
+        sourceArea.appendChild(newBlock);
+        newBlock.addEventListener('click', () => {
+            animation.pause();
+            moveToPyramid(newBlock);
+        });
+
+        setTimeout(() => {
+            if (newBlock.parentNode) newBlock.remove();
+        }, config.fallDuration);
+
+        updatePyramidDisplay(); // Обновляем правый блок после удаления
     }
 
     function checkPyramid() {
@@ -148,14 +198,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function savePlayerScore() {
         const playerName = localStorage.getItem('playerName');
         if (!playerName) return;
-    
+
         const levelScores = JSON.parse(localStorage.getItem(`levelScores_${playerName}`)) || {};
         const currentLevelScore = levelScores['level3'] || 0;
         levelScores['level3'] = Math.max(currentLevelScore, score);
         localStorage.setItem(`levelScores_${playerName}`, JSON.stringify(levelScores));
-    
+
         const totalScore = calculateTotalScore(playerName);
-    
+
         const rating = JSON.parse(localStorage.getItem('rating')) || [];
         const playerIndex = rating.findIndex(player => player.username === playerName);
         if (playerIndex !== -1) {
@@ -165,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         localStorage.setItem('rating', JSON.stringify(rating));
     }
-    
+
     function calculateTotalScore(playerName) {
         const levelScores = JSON.parse(localStorage.getItem(`levelScores_${playerName}`)) || {};
         return (
