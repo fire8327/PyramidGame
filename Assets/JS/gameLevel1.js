@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isSorted) {
             score += config.correctBonus;
-            showFeedback('Правильно! Пирамида собрана верно', true);
+            showFeedback('Правильно! Уровень пройден!', true);
             finishLevel();
         } else {
             score = Math.max(0, score - config.wrongPenalty);
