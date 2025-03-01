@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerId; // Идентификатор таймера для его управления
     let blocks = []; // Массив объектов блоков (элемент, ширина, позиция)
     let selectedBlockIndex = -1; // Индекс выбранного блока (-1 = ничего не выбрано)
+    let currentStage = 1; // Текущий этап (1, 2 или 3)
 
     // Конфигурация уровня
     const config = {
@@ -20,108 +21,120 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Инициализация уровня
     function initLevel() {
-        score = 0; // Обнуляем счет для новой сессии
-        updateScore(); // Обновляем отображение счета
-        document.getElementById('username').textContent = localStorage.getItem('playerName'); // Устанавливаем имя игрока из localStorage
-        document.getElementById('logout-btn').addEventListener('click', () => { // Настраиваем кнопку выхода
-            localStorage.removeItem('playerName'); // Удаляем имя из localStorage
-            window.location.href = '../index.html'; // Перенаправляем на главную страницу
+        score = 0;
+        updateScore();
+        document.getElementById('username').textContent = localStorage.getItem('playerName');
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('playerName');
+            window.location.href = '../index.html';
         });
-        generateBlocks(); // Генерируем блоки для игры
-        startTimer(); // Запускаем таймер
-        document.addEventListener('keydown', handleKeyPress); // Добавляем обработчик клавиш
-        document.getElementById('action-btn').addEventListener('click', checkStage); // Настраиваем кнопку проверки
+        currentStage = 1;
+        document.getElementById('current-stage').textContent = currentStage;
+        generateBlocks();
+        startTimer();
+        document.addEventListener('keydown', handleKeyPress);
+        document.getElementById('action-btn').addEventListener('click', checkStage);
     }
 
     // Создание и размещение блоков в игровом поле
     function generateBlocks() {
-        const gameArea = document.getElementById('gameArea'); // Получаем игровое поле
-        gameArea.innerHTML = ''; // Очищаем поле
-        blocks = []; // Обнуляем массив блоков
+        const gameArea = document.getElementById('gameArea');
+        gameArea.innerHTML = '';
+        blocks = [];
 
-        // Создаем массив ширин и перемешиваем его
         const widths = Array.from({ length: config.blockCount }, (_, i) =>
             config.maxWidth - (i * config.step)
         ).sort(() => Math.random() - 0.5);
 
-        // Создаем блоки на основе ширин
         widths.forEach((width, index) => {
-            const block = document.createElement('div'); // Создаем новый элемент div
-            block.className = `absolute bg-lime-500 h-6 cursor-pointer transition-all border-2 border-lime-700 rounded-full`; // Устанавливаем стили
-            block.style.width = `${width}px`; // Задаем ширину
-            block.style.left = '50%'; // Центрируем по горизонтали
-            block.style.transform = 'translateX(-50%)'; // Корректируем позицию
-            block.style.bottom = `${index * 30 + config.bottomOffset}px`; // Устанавливаем вертикальную позицию
-            block.dataset.width = width; // Сохраняем ширину в data-атрибуте
+            const block = document.createElement('div');
+            block.className = `absolute bg-lime-500 h-6 cursor-pointer transition-all border-2 border-lime-700 rounded-full`;
+            block.style.width = `${width}px`;
+            block.style.left = '50%';
+            block.style.transform = 'translateX(-50%)';
+            block.style.bottom = `${index * 30 + config.bottomOffset}px`;
+            block.dataset.width = width;
 
-            gameArea.appendChild(block); // Добавляем блок в игровое поле
-            blocks.push({ element: block, width: width, position: index }); // Добавляем блок в массив
+            gameArea.appendChild(block);
+            blocks.push({ element: block, width: width, position: index });
         });
     }
 
     // Обработка нажатий клавиш для перемещения блоков
     function handleKeyPress(e) {
-        if (selectedBlockIndex === -1) return; // Если блок не выбран, ничего не делаем
+        if (selectedBlockIndex === -1) return;
 
-        switch (e.key) { // Проверяем нажатую клавишу
+        switch (e.key) {
             case 'ArrowUp':
-                if (selectedBlockIndex < blocks.length - 1) moveBlock(1); // Перемещаем вверх, если не верхний блок
+                if (selectedBlockIndex < blocks.length - 1) moveBlock(1);
                 break;
             case 'ArrowDown':
-                if (selectedBlockIndex > 0) moveBlock(-1); // Перемещаем вниз, если не нижний блок
+                if (selectedBlockIndex > 0) moveBlock(-1);
                 break;
         }
     }
 
     // Перемещение выбранного блока вверх или вниз
     function moveBlock(direction) {
-        const currentBlock = blocks[selectedBlockIndex]; // Текущий выбранный блок
-        const targetIndex = selectedBlockIndex + direction; // Целевой индекс для перемещения
-        const targetBlock = blocks[targetIndex]; // Целевой блок
+        const currentBlock = blocks[selectedBlockIndex];
+        const targetIndex = selectedBlockIndex + direction;
+        const targetBlock = blocks[targetIndex];
 
-        // Меняем местами блоки в массиве
         [blocks[selectedBlockIndex], blocks[targetIndex]] = [blocks[targetIndex], blocks[selectedBlockIndex]];
-        // Обновляем позиции всех блоков на экране
         blocks.forEach((block, index) => {
             block.element.style.bottom = `${index * 30 + config.bottomOffset}px`;
         });
 
-        selectedBlockIndex = targetIndex; // Обновляем индекс выбранного блока
+        selectedBlockIndex = targetIndex;
     }
 
     // Выбор блока при клике
     function selectBlock(index) {
         blocks.forEach(block =>
-            block.element.classList.remove('shadow-[0px_0px_20px_-4px_black]') // Удаляем тень у всех блоков
+            block.element.classList.remove('shadow-[0px_0px_20px_-4px_black]')
         );
-        selectedBlockIndex = index; // Устанавливаем новый выбранный индекс
-        blocks[index].element.classList.add('shadow-[0px_0px_20px_-4px_black]'); // Добавляем тень выбранному блоку
+        selectedBlockIndex = index;
+        blocks[index].element.classList.add('shadow-[0px_0px_20px_-4px_black]');
     }
 
-    // Проверка правильности сортировки пирамиды
+    // Проверка правильности сортировки пирамиды с улучшенным фидбеком
     function checkStage() {
         const isSorted = blocks.every((block, index, arr) =>
-            !index || block.width <= arr[index - 1].width // Проверяем, что каждый блок не шире предыдущего
+            !index || block.width <= arr[index - 1].width
         );
 
         if (isSorted) {
             score += config.correctBonus; // Добавляем бонус за успех
-            showFeedback('Правильно! Уровень пройден!', true); // Показываем сообщение об успехе
-            finishLevel(); // Завершаем уровень
+            if (currentStage < 3) {
+                // Сообщение о правильной сборке с указанием следующего этапа
+                showFeedback(`Пирамида собрана правильно! Переход к этапу ${currentStage + 1}.`, true);
+                setTimeout(() => { // Задержка 1 секунда перед переходом к следующему этапу
+                    currentStage++;
+                    document.getElementById('current-stage').textContent = currentStage;
+                    generateBlocks();
+                    selectedBlockIndex = -1;
+                    showFeedback(''); // Очищаем фидбек после перехода
+                }, 1000);
+            } else {
+                // Сообщение о завершении всех этапов
+                showFeedback('Пирамида собрана правильно! Уровень 1 пройден!', true);
+                setTimeout(finishLevel, 1000); // Задержка перед завершением уровня
+            }
         } else {
-            score = Math.max(0, score - config.wrongPenalty); // Вычитаем штраф, но не ниже 0
-            showFeedback('Неправильно! Продолжайте сортировку', false); // Показываем сообщение об ошибке
+            score = Math.max(0, score - config.wrongPenalty); // Вычитаем штраф
+            // Сообщение о неправильной сборке
+            showFeedback('Пирамида собрана неверно. Продолжайте сортировку.', false);
         }
-        updateScore(); // Обновляем отображение счета
+        updateScore();
     }
 
     // Запуск таймера обратного отсчета
     function startTimer() {
         timerId = setInterval(() => {
-            timeLeft--; // Уменьшаем время на 1 секунду
-            document.getElementById('timer').textContent = `Осталось: ${timeLeft} сек`; // Обновляем текст таймера
-            if (timeLeft <= 0) endGame(); // Завершаем игру, если время вышло
-        }, 1000); // Интервал 1 секунда
+            timeLeft--;
+            document.getElementById('timer').textContent = `Осталось: ${timeLeft} сек`;
+            if (timeLeft <= 0) endGame();
+        }, 1000);
     }
 
     // Обновление отображения текущего счета
@@ -131,50 +144,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Отображение обратной связи
     function showFeedback(message, isCorrect) {
-        const feedback = document.getElementById('feedback'); // Получаем элемент обратной связи
-        feedback.textContent = message; // Устанавливаем текст
-        feedback.className = `text-lg font-semibold text-center mt-4 ${isCorrect ? 'text-green-600' : 'text-red-600'}`; // Устанавливаем цвет текста
+        const feedback = document.getElementById('feedback');
+        feedback.textContent = message;
+        feedback.className = `text-lg font-semibold text-center mt-4 ${isCorrect ? 'text-green-600' : 'text-red-600'}`;
     }
 
     // Завершение игры при истечении времени
     function endGame() {
-        clearInterval(timerId); // Останавливаем таймер
-        showFeedback('Время вышло! Игра завершена', false); // Показываем сообщение о конце
-        setTimeout(() => window.location.reload(), 3000); // Перезагружаем страницу через 3 секунды
+        clearInterval(timerId);
+        showFeedback('Время вышло! Игра завершена', false);
+        setTimeout(() => window.location.reload(), 3000);
     }
 
-    // Завершение уровня при успешной сортировке
+    // Завершение уровня при успешной сортировке всех этапов
     function finishLevel() {
-        clearInterval(timerId); // Останавливаем таймер
-        savePlayerScore(); // Сохраняем счет игрока
-        document.getElementById('action-btn').textContent = 'Следующий уровень'; // Меняем текст кнопки
-        document.getElementById('action-btn').removeEventListener('click', checkStage); // Удаляем старый обработчик
+        clearInterval(timerId);
+        savePlayerScore();
+        document.getElementById('action-btn').textContent = 'Следующий уровень';
+        document.getElementById('action-btn').removeEventListener('click', checkStage);
         document.getElementById('action-btn').addEventListener('click', () => {
-            window.location.href = 'gameLevel2.html'; // Переход на следующий уровень
+            window.location.href = 'gameLevel2.html';
         });
     }
 
     // Сохранение счета игрока в localStorage
     function savePlayerScore() {
         const playerName = localStorage.getItem('playerName');
-        if (!playerName) return; // Если имени нет, ничего не делаем
+        if (!playerName) return;
 
-        // Сохраняем лучший результат для уровня 1
         const levelScores = JSON.parse(localStorage.getItem(`levelScores_${playerName}`)) || {};
         const currentLevelScore = levelScores['level1'] || 0;
         levelScores['level1'] = Math.max(currentLevelScore, score);
         localStorage.setItem(`levelScores_${playerName}`, JSON.stringify(levelScores));
 
-        // Подсчитываем общий результат по всем уровням
         const totalScore = calculateTotalScore(playerName);
 
-        // Обновляем рейтинг игроков
         const rating = JSON.parse(localStorage.getItem('rating')) || [];
         const playerIndex = rating.findIndex(player => player.username === playerName);
         if (playerIndex !== -1) {
-            rating[playerIndex].score = totalScore; // Обновляем существующий результат
+            rating[playerIndex].score = totalScore;
         } else {
-            rating.push({ username: playerName, score: totalScore }); // Добавляем нового игрока
+            rating.push({ username: playerName, score: totalScore });
         }
         localStorage.setItem('rating', JSON.stringify(rating));
     }
@@ -191,10 +201,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Обработчик клика по игровому полю для выбора блоков
     document.getElementById('gameArea').addEventListener('click', (e) => {
-        const blockElement = e.target.closest('[data-width]'); // Находим ближайший блок с атрибутом data-width
+        const blockElement = e.target.closest('[data-width]');
         if (blockElement) {
-            const index = blocks.findIndex(b => b.element === blockElement); // Определяем индекс блока
-            if (index !== -1) selectBlock(index); // Выбираем блок, если он найден
+            const index = blocks.findIndex(b => b.element === blockElement);
+            if (index !== -1) selectBlock(index);
         }
     });
 
