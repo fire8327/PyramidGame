@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Инициализация переменных
     let score = 0; // Текущий счёт
-    let timeLeft = 40; // Общее время на уровень
+    let timeLeft = 120; // Общее время на уровень
     let timerId; // Идентификатор таймера
     let currentStage = 1; // Текущий этап (1–3)
     let exampleBlocks = []; // Блоки примера (правая часть)
