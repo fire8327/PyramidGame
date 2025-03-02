@@ -81,9 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
         block.dataset.index = index;
         if (isPlayerBlock) {
             block.classList.add('cursor-pointer');
+            // Левый клик — увеличение
+            block.addEventListener('click', () => increaseSize(block));
+            // Правый клик — уменьшение
             block.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-                toggleSize(block);
+                decreaseSize(block);
             });
         }
         block.style.width = `${width}px`;
@@ -105,21 +108,40 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.floor((width - config.minWidth) / config.step) + 1;
     }
 
-    // Изменение размера блока
-    function toggleSize(block) {
+    // Увеличение размера блока
+    function increaseSize(block) {
         const index = parseInt(block.dataset.index);
         const playerBlock = playerBlocks.find(b => b.index === index);
         if (!playerBlock) return;
 
         let currentWidth = playerBlock.width;
         let newWidth = currentWidth + config.step;
-        if (newWidth > config.maxWidth) newWidth = config.minWidth;
+        if (newWidth > config.maxWidth) newWidth = config.maxWidth; // Ограничение максимальной ширины
 
         playerBlock.width = newWidth;
         playerBlock.element.style.width = `${newWidth}px`;
         playerBlock.element.dataset.width = newWidth;
 
-        // Обновляем номер только для этой ступеньки
+        // Обновляем номер
+        const numberElement = playerBlock.element.querySelector('span');
+        numberElement.textContent = getNumberFromWidth(newWidth);
+    }
+
+    // Уменьшение размера блока
+    function decreaseSize(block) {
+        const index = parseInt(block.dataset.index);
+        const playerBlock = playerBlocks.find(b => b.index === index);
+        if (!playerBlock) return;
+
+        let currentWidth = playerBlock.width;
+        let newWidth = currentWidth - config.step;
+        if (newWidth < config.minWidth) newWidth = config.minWidth; // Ограничение минимальной ширины
+
+        playerBlock.width = newWidth;
+        playerBlock.element.style.width = `${newWidth}px`;
+        playerBlock.element.dataset.width = newWidth;
+
+        // Обновляем номер
         const numberElement = playerBlock.element.querySelector('span');
         numberElement.textContent = getNumberFromWidth(newWidth);
     }
